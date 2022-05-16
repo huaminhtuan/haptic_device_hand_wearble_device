@@ -2,8 +2,8 @@ PROJECT_NAME     := haptic_device_hand_wearble_device
 TARGETS          := nrf52840_xxaa
 OUTPUT_DIRECTORY := build
 
-SDK_ROOT := D:\haptic_device_hand_wearble_device\doc\nRF5_SDK_17.1.0_ddde560
-PROJ_DIR := .
+SDK_ROOT := D:/haptic_device_hand_wearble_device/source/fw/libraries/sdk
+PROJ_DIR := D:/haptic_device_hand_wearble_device/source/fw
 
 $(OUTPUT_DIRECTORY)/nrf52840_xxaa.out: \
   LINKER_SCRIPT  := gcc_nrf52840.ld
@@ -11,9 +11,14 @@ $(OUTPUT_DIRECTORY)/nrf52840_xxaa.out: \
 # Source files common to all targets
 SRC_FILES += \
   $(PROJ_DIR)/main.c \
+  $(PROJ_DIR)/gcc_startup_nrf52840.s \
+  $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \
+  $(SDK_ROOT)/components \
+  $(SDK_ROOT)/components/toolchain/cmsis/include \
+  $(SDK_ROOT)/modules/nrfx/mdk \
 
 # Libraries common to all targets
 LIB_FILES += \
