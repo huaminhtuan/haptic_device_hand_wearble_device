@@ -1,3 +1,6 @@
 [submodule "fw/libraries/sdk-nrf"]
 	path = fw/libraries/sdk-nrf
 	url = https://github.com/nrfconnect/sdk-nrf
+[submodule "fw/libraries/sdk-zephyr"]
+	path = fw/libraries/sdk-zephyr
+	url = https://github.com/nrfconnect/sdk-zephyr.git

@@ -2,23 +2,49 @@ PROJECT_NAME     := haptic_device_hand_wearble_device
 TARGETS          := nrf52840_xxaa
 OUTPUT_DIRECTORY := build
 
-SDK_ROOT := D:/haptic_device_hand_wearble_device/source/fw/libraries/sdk
-PROJ_DIR := D:/haptic_device_hand_wearble_device/source/fw
+SDK_ROOT := ./libraries/sdk
+SDK_NRF_ROOT := ./libraries/sdk-nrf
+SDK_ZEPHYR_ROOT := ./libraries/sdk-zephyr
+PROJ_DIR := .
 
 $(OUTPUT_DIRECTORY)/nrf52840_xxaa.out: \
   LINKER_SCRIPT  := gcc_nrf52840.ld
 
 # Source files common to all targets
 SRC_FILES += \
-  $(PROJ_DIR)/main.c \
-  $(PROJ_DIR)/gcc_startup_nrf52840.s \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
+  $(SDK_ROOT)/components/libraries/util/app_error.c \
+  $(SDK_ROOT)/components/libraries/util/app_error_weak.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_uart.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_default_backends.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
+  $(SDK_ROOT)/components/libraries/log/src/nrf_log_str_formatter.c \
+  $(PROJ_DIR)/gcc_startup_nrf52840.s \
+  $(PROJ_DIR)/main.c \
 
+# ESB source files
+SRC_FILES += \
+  $(SDK_ROOT)/components/proprietary_rf/esb/nrf_esb.c \
+  
 # Include folders common to all targets
 INC_FOLDERS += \
   $(SDK_ROOT)/components \
   $(SDK_ROOT)/components/toolchain/cmsis/include \
+  $(SDK_ROOT)/modules/nrfx \
   $(SDK_ROOT)/modules/nrfx/mdk \
+  $(SDK_ROOT)/modules/nrfx/hal \
+  $(SDK_ROOT)/integration/nrfx \
+  $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd \
+  $(SDK_ROOT)/components/libraries/util \
+  $(SDK_ROOT)/components/libraries/delay \
+  $(SDK_ROOT)/components/libraries/log \
+  $(SDK_ROOT)/components/libraries/log/src \
+  $(SDK_ROOT)/components/libraries/experimental_section_vars \
+  $(SDK_ROOT)/components/libraries/strerror \
+  $(SDK_ROOT)/components/proprietary_rf/esb \
+  $(PROJ_DIR) \
 
 # Libraries common to all targets
 LIB_FILES += \
@@ -38,6 +64,7 @@ CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mthumb -mabi=aapcs
 CFLAGS += -Wall -Werror
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
+CFLAGS += -DCONFIG_ESB_MAX_PAYLOAD_LENGTH=32 -DCONFIG_ARM -DCONFIG_MP_NUM_CPUS=1
 # keep every function in a separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin -fshort-enums
