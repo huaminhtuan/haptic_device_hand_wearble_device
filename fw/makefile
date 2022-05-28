@@ -12,27 +12,29 @@ $(OUTPUT_DIRECTORY)/nrf52840_xxaa.out: \
 
 # Source files common to all targets
 SRC_FILES += \
+  $(PROJ_DIR)/main.c \
+  $(PROJ_DIR)/gcc_startup_nrf52840.s \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
-  $(SDK_ROOT)/components/libraries/util/app_error.c \
-  $(SDK_ROOT)/components/libraries/util/app_error_weak.c \
-  $(SDK_ROOT)/components/libraries/util/app_util_platform.c \
-  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
-  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
-  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_uart.c \
-  $(SDK_ROOT)/components/libraries/log/src/nrf_log_default_backends.c \
-  $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
-  $(SDK_ROOT)/components/libraries/log/src/nrf_log_str_formatter.c \
-  $(PROJ_DIR)/gcc_startup_nrf52840.s \
-  $(PROJ_DIR)/main.c \
 
+#  $(SDK_ROOT)/components/libraries/util/app_error.c \
+#  $(SDK_ROOT)/components/libraries/util/app_error_weak.c \
+#  $(SDK_ROOT)/components/libraries/util/app_util_platform.c \
+#  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
+#  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
+#  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_uart.c \
+#  $(SDK_ROOT)/components/libraries/log/src/nrf_log_default_backends.c \
+#  $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
+#  $(SDK_ROOT)/components/libraries/log/src/nrf_log_str_formatter.c \
+  
 # ESB source files
-SRC_FILES += \
-  $(SDK_ROOT)/components/proprietary_rf/esb/nrf_esb.c \
+#SRC_FILES += \
+#  $(SDK_ROOT)/components/proprietary_rf/esb/nrf_esb.c \
   
 # Include folders common to all targets
 INC_FOLDERS += \
+  $(PROJ_DIR) \
   $(SDK_ROOT)/components \
   $(SDK_ROOT)/components/toolchain/cmsis/include \
   $(SDK_ROOT)/modules/nrfx \
@@ -40,16 +42,15 @@ INC_FOLDERS += \
   $(SDK_ROOT)/modules/nrfx/hal \
   $(SDK_ROOT)/modules/nrfx/drivers/include \
   $(SDK_ROOT)/modules/nrfx/drivers \
-  $(SDK_ROOT)/integration/nrfx \
-  $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd \
   $(SDK_ROOT)/components/libraries/util \
-  $(SDK_ROOT)/components/libraries/delay \
-  $(SDK_ROOT)/components/libraries/log \
-  $(SDK_ROOT)/components/libraries/log/src \
-  $(SDK_ROOT)/components/libraries/experimental_section_vars \
-  $(SDK_ROOT)/components/libraries/strerror \
-  $(SDK_ROOT)/components/proprietary_rf/esb \
-  $(PROJ_DIR) \
+  $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd \
+  
+#  $(SDK_ROOT)/components/libraries/strerror \
+#  $(SDK_ROOT)/components/libraries/delay \
+#  $(SDK_ROOT)/components/libraries/log \
+#  $(SDK_ROOT)/components/libraries/log/src \
+#  $(SDK_ROOT)/components/libraries/experimental_section_vars \
+#  $(SDK_ROOT)/components/proprietary_rf/esb \
 
 # Libraries common to all targets
 LIB_FILES += \
@@ -130,11 +131,14 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 # Flash the program
 flash: default
 	@echo Flashing: $(OUTPUT_DIRECTORY)/nrf52840_xxaa.hex
-	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/nrf52840_xxaa.hex --sectorerase
+	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/nrf52840_xxaa.hex --sectorerase --verify
 	nrfjprog -f nrf52 --reset
 
 erase:
 	nrfjprog -f nrf52 --eraseall
+	
+reset:
+	nrfjprog -f nrf52 --reset
 
 SDK_CONFIG_FILE := ../config/sdk_config.h
 CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
