@@ -128,19 +128,20 @@ uint32_t uart_init()
     config.pselrxd = RX_PIN;
     config.hwfc = NRF_UART_HWFC_DISABLED;
     config.parity = NRF_UART_PARITY_EXCLUDED;
-	config.baudrate = NRF_UART_BAUDRATE_9600;
+	config.baudrate = NRF_UART_BAUDRATE_115200;
 	config.interrupt_priority = 7;
 	uint32_t error_code = nrfx_uart_init(&uart_inst, &config, uart_event_handler);
-	NRF_UART0->CONFIG = NRF_UART_HWFC_DISABLED | NRF_UART_PARITY_EXCLUDED;
-	NRF_UART0->BAUDRATE = NRF_UART_BAUDRATE_9600;
-	NRF_UART0->ENABLE = 0x4;
-	nrf_uart_event_clear(uart_inst.p_reg, NRF_UART_EVENT_TXDRDY);
+//	NRF_UART0->CONFIG = NRF_UART_HWFC_DISABLED | NRF_UART_PARITY_EXCLUDED;
+//	NRF_UART0->BAUDRATE = NRF_UART_BAUDRATE_9600;
+//	NRF_UART0->ENABLE = 0x4;
+//	nrf_uart_event_clear(uart_inst.p_reg, NRF_UART_EVENT_TXDRDY);
 	nrfx_uart_rx(&uart_inst, rx_buffer,1);
 	return error_code;
 }
 
 uint32_t uartPut(uint8_t byte)
 {
+	nrf_uart_task_trigger(uart_inst.p_reg, NRF_UART_TASK_STARTTX);
 	NRF_UART0->TXD = byte;
 	uint32_t timeout = 1000;
 	while(!nrf_uart_event_check(uart_inst.p_reg, NRF_UART_EVENT_TXDRDY) && (timeout != 0))
@@ -149,11 +150,11 @@ uint32_t uartPut(uint8_t byte)
 	}
 
 	if (timeout == 0)
-		return NRFX_SUCCESS;
+		return NRFX_ERROR_TIMEOUT;
 	else
 	{
 		nrf_uart_event_clear(uart_inst.p_reg, NRF_UART_EVENT_TXDRDY);
-		return NRFX_ERROR_TIMEOUT;
+		return NRFX_SUCCESS;
 	}
 }
 
@@ -171,7 +172,7 @@ PUTCHAR_PROTOTYPE
 
 int main(void)
 {
-	uint32_t err_code;
+//	uint32_t err_code = NRFX_SUCCESS;
 	// Initialize
 //	clocks_start();
 //	err_code = esb_init();
@@ -179,8 +180,12 @@ int main(void)
 
 	uart_init();
 //	while(nrfx_uart_tx_in_progress(&uart_inst));
-	err_code = uartPut(0x65);
-	VERIFY_SUCCESS(err_code);
+	uartPut(0x73);
+	uartPut(0x74);
+	uartPut(0x61);
+	uartPut(0x72);
+	uartPut(0x74);
+//	VERIFY_SUCCESS(err_code);
 //	while(nrfx_uart_tx_in_progress(&uart_inst));
 	uartPut(0x00);
 //	while(nrfx_uart_tx_in_progress(&uart_inst));
