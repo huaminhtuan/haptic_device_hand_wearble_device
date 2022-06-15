@@ -18,6 +18,7 @@
  * INCLUDE
  *****************************************************************************/
 #include "system_management.h"
+#include "log.h"
 
 /******************************************************************************
  * LOCAL DEFINITION
@@ -43,6 +44,14 @@
  * @param:
  * @return:
  */
+void SystemManagementInit(void)
+{
+	LogInit();
+	LogPrint("\n\n\n");
+	LogPrint("HAPTIC DEVICE - HAND WEARABLE DEVICE PROJECT\n");
+	LogPrint("Initialising...\n");
+	LogFlush();
+}
 
 /******************************************************************************
  * LOCAL FUNCTION DEFINITION
@@ -52,15 +61,6 @@
  * @param:
  * @return:
  */
-int main(void)
-{
-	SystemManagementInit();
-	while(1)
-	{
-
-	}
-	return 0;
-}
 
 /******************************************************************************
  * END OF FILE

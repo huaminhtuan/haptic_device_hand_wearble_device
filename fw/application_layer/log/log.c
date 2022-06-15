@@ -17,7 +17,10 @@
 /******************************************************************************
  * INCLUDE
  *****************************************************************************/
-#include "system_management.h"
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+#include "uart_drv.h"
 
 /******************************************************************************
  * LOCAL DEFINITION
@@ -43,6 +46,18 @@
  * @param:
  * @return:
  */
+void LogPrint(const char *string, ...)
+{
+	va_list arg;
+	va_start(arg, string);
+
+	volatile char txBuf[100];
+	memset((void *) txBuf, 0, sizeof(txBuf));
+	vsprintf((char *) txBuf, string, arg);
+	UartDrvWriteToTXBuff((uint8_t *) txBuf, strlen((const char *) txBuf));
+
+	va_end(arg);
+}
 
 /******************************************************************************
  * LOCAL FUNCTION DEFINITION
@@ -52,15 +67,6 @@
  * @param:
  * @return:
  */
-int main(void)
-{
-	SystemManagementInit();
-	while(1)
-	{
-
-	}
-	return 0;
-}
 
 /******************************************************************************
  * END OF FILE

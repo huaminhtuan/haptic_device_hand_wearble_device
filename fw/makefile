@@ -17,6 +17,9 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
+  $(PROJ_DIR)/application_layer/system_management/system_management.c \
+  $(PROJ_DIR)/application_layer/log/log.c \
+  $(PROJ_DIR)/driver_layer/uart_drv/uart_drv.c \
 
 #  $(SDK_ROOT)/components/libraries/util/app_error.c \
 #  $(SDK_ROOT)/components/libraries/util/app_error_weak.c \
@@ -44,6 +47,9 @@ INC_FOLDERS += \
   $(SDK_ROOT)/modules/nrfx/drivers \
   $(SDK_ROOT)/components/libraries/util \
   $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd \
+  $(PROJ_DIR)/application_layer/system_management \
+  $(PROJ_DIR)/application_layer/log \
+  $(PROJ_DIR)/driver_layer/uart_drv \
   
 #  $(SDK_ROOT)/components/libraries/strerror \
 #  $(SDK_ROOT)/components/libraries/delay \
@@ -71,6 +77,8 @@ CFLAGS += -mthumb -mabi=aapcs
 CFLAGS += -Wall -Werror
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 CFLAGS += -DCONFIG_ESB_MAX_PAYLOAD_LENGTH=32 -DCONFIG_ARM -DCONFIG_MP_NUM_CPUS=1
+CFLAGS += -DCENTRAL_CONTROLLER
+#CFLAGS += -DHAPTIC_DEVICE
 # keep every function in a separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin -fshort-enums
