@@ -17,23 +17,11 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
+  $(SDK_ROOT)/components/proprietary_rf/esb/nrf_esb.c \
   $(PROJ_DIR)/application_layer/system_management/system_management.c \
   $(PROJ_DIR)/application_layer/log/log.c \
   $(PROJ_DIR)/driver_layer/uart_drv/uart_drv.c \
-
-#  $(SDK_ROOT)/components/libraries/util/app_error.c \
-#  $(SDK_ROOT)/components/libraries/util/app_error_weak.c \
-#  $(SDK_ROOT)/components/libraries/util/app_util_platform.c \
-#  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_rtt.c \
-#  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_serial.c \
-#  $(SDK_ROOT)/components/libraries/log/src/nrf_log_backend_uart.c \
-#  $(SDK_ROOT)/components/libraries/log/src/nrf_log_default_backends.c \
-#  $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
-#  $(SDK_ROOT)/components/libraries/log/src/nrf_log_str_formatter.c \
-  
-# ESB source files
-#SRC_FILES += \
-#  $(SDK_ROOT)/components/proprietary_rf/esb/nrf_esb.c \
+  $(PROJ_DIR)/driver_layer/esb_drv/esb_drv.c \
   
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -47,17 +35,13 @@ INC_FOLDERS += \
   $(SDK_ROOT)/modules/nrfx/drivers \
   $(SDK_ROOT)/components/libraries/util \
   $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd \
+  $(SDK_ROOT)/components/proprietary_rf/esb \
+  $(SDK_ROOT)/components/libraries/delay \
   $(PROJ_DIR)/application_layer/system_management \
   $(PROJ_DIR)/application_layer/log \
   $(PROJ_DIR)/driver_layer/uart_drv \
+  $(PROJ_DIR)/driver_layer/esb_drv \
   
-#  $(SDK_ROOT)/components/libraries/strerror \
-#  $(SDK_ROOT)/components/libraries/delay \
-#  $(SDK_ROOT)/components/libraries/log \
-#  $(SDK_ROOT)/components/libraries/log/src \
-#  $(SDK_ROOT)/components/libraries/experimental_section_vars \
-#  $(SDK_ROOT)/components/proprietary_rf/esb \
-
 # Libraries common to all targets
 LIB_FILES += \
 

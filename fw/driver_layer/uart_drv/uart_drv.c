@@ -31,13 +31,13 @@
 typedef struct
 {
     uint8_t                * txBuffer;        // Tx buffer
-    volatile uint16_t         txBufferRead;    // Tx buffer read counter
-    volatile uint16_t         txBufferWrite;   // Tx buffer write counter
+    volatile uint16_t        txBufferRead;    // Tx buffer read counter
+    volatile uint16_t        txBufferWrite;   // Tx buffer write counter
     bool                     isTXBufferFull;  // Is TX buffer full?
     bool                     isTXBufferEmpty; // Is TX buffer empty?
     uint8_t                * rxBuffer;        // Rx buffer
-    volatile uint16_t         rxBufferRead;    // Rx buffer read counter
-    volatile uint16_t         rxBufferWrite;   // Rx buffer write counter
+    volatile uint16_t        rxBufferRead;    // Rx buffer read counter
+    volatile uint16_t        rxBufferWrite;   // Rx buffer write counter
     bool                     isRXBufferFull;  // Is RX buffer full?
     bool                     isRXBufferEmpty; // Is RX buffer empty?
 } UART_ControlBlock_t;
@@ -54,7 +54,7 @@ static nrfx_uart_t uartInst = NRFX_UART_INSTANCE(0);
 /******************************************************************************
  * LOCAL FUNCTION PROTOTYPE
  *****************************************************************************/
-static void EventHandler(nrfx_uart_event_t const * event, void *context);
+static void UartEventHandler(nrfx_uart_event_t const * event, void *context);
 static UART_ERR_CODE_t ReadFromTXBuff(uint8_t *byte);
 static UART_ERR_CODE_t WriteToTXBuff(uint8_t *byte, uint8_t length);
 static uint32_t UartDrvPut(uint8_t byte);
@@ -80,7 +80,7 @@ uint32_t UartDrvInit(void)
     config.parity = NRF_UART_PARITY_EXCLUDED;
 	config.baudrate = NRF_UART_BAUDRATE_460800;
 	config.interrupt_priority = 7;
-	uint32_t error_code = nrfx_uart_init(&uartInst, &config, EventHandler);
+	uint32_t error_code = nrfx_uart_init(&uartInst, &config, UartEventHandler);
 	nrfx_uart_rx(&uartInst, rxBuffer, BUFFER_SIZE);
 	return error_code;
 }
@@ -121,7 +121,7 @@ void UartFlush(void)
  * @param:
  * @return:
  */
-static void EventHandler(nrfx_uart_event_t const * event, void *context)
+static void UartEventHandler(nrfx_uart_event_t const * event, void *context)
 {
 	if (event->type == NRFX_UART_EVT_RX_DONE)
 	{
