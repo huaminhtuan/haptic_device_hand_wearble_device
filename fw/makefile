@@ -22,6 +22,7 @@ SRC_FILES += \
   $(PROJ_DIR)/application_layer/log/log.c \
   $(PROJ_DIR)/driver_layer/uart_drv/uart_drv.c \
   $(PROJ_DIR)/driver_layer/esb_drv/esb_drv.c \
+  $(PROJ_DIR)/driver_layer/buffer_control_drv/buffer_control_drv.c \
   
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -41,6 +42,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/application_layer/log \
   $(PROJ_DIR)/driver_layer/uart_drv \
   $(PROJ_DIR)/driver_layer/esb_drv \
+  $(PROJ_DIR)/driver_layer/buffer_control_drv \
   
 # Libraries common to all targets
 LIB_FILES += \
@@ -58,11 +60,11 @@ CFLAGS += -DFLOAT_ABI_HARD
 CFLAGS += -DNRF52840_XXAA
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mthumb -mabi=aapcs
-CFLAGS += -Wall -Werror
+CFLAGS += -Wall
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 CFLAGS += -DCONFIG_ESB_MAX_PAYLOAD_LENGTH=32 -DCONFIG_ARM -DCONFIG_MP_NUM_CPUS=1
-CFLAGS += -DCENTRAL_CONTROLLER
-#CFLAGS += -DHAPTIC_DEVICE
+#CFLAGS += -DCENTRAL_CONTROLLER
+CFLAGS += -DHAPTIC_DEVICE
 # keep every function in a separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin -fshort-enums

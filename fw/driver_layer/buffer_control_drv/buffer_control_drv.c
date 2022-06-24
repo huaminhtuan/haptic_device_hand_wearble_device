@@ -17,10 +17,7 @@
 /******************************************************************************
  * INCLUDE
  *****************************************************************************/
-#include "nrf_error.h"
-#include "system_management.h"
-#include "log.h"
-#include "esb_drv.h"
+#include "buffer_control_drv.h"
 
 /******************************************************************************
  * LOCAL DEFINITION
@@ -33,7 +30,6 @@
 /******************************************************************************
  * LOCAL FUNCTION PROTOTYPE
  *****************************************************************************/
-static void ClockStart(void);
 
 /******************************************************************************
  * PUBLIC VARIABLE DEFINITION
@@ -47,38 +43,62 @@ static void ClockStart(void);
  * @param:
  * @return:
  */
-void SystemManagementInit(void)
+BUFF_CTRL_ERR_CODE_t BuffCtrlReadFromBuff(buff_ctrl_block_t *buffCtrlBlock,
+		uint16_t buffSize, uint8_t *readByte)
 {
-	LogInit();
-	LogPrint("\n\n\n");
-	LogPrint("HAPTIC DEVICE - HAND WEARABLE DEVICE PROJECT\n");
-#ifdef CENTRAL_CONTROLLER
-	LogPrint("Role: central controller\n");
-#endif
-#ifdef HAPTIC_DEVICE
-	LogPrint("Role: haptic device\n");
-#endif
-	LogPrint("Initializing...\n");
-	LogFlush();
+	// If buffer is empty, return error
+	if(buffCtrlBlock->isBufferEmpty)
+		return BUFF_CTRL_ERR_EMPTY_BUFF;
+	// Get byte from buffer and increase buffer read counter. We also
+	// clear isBufferFull flag because the buffer will be read, that means
+	// it can not be full.
+	*readByte = buffCtrlBlock->buffer[buffCtrlBlock->bufferReadCounter];
+	buffCtrlBlock->bufferReadCounter++;
+	buffCtrlBlock->isBufferFull = false;
 
-	ClockStart();
-#ifdef CENTRAL_CONTROLLER
-	EsbDrvInit(ESB_DEVICE_0);
-	uint8_t str[] = "test\n";
-	if(EsbDrvSend(str, 6, ESB_DEVICE_1) == NRF_SUCCESS)
+	// If buffer read counter is equal to buffer write counter,
+	// set isBufferEmpty flag to true to indicate that buffer is empty
+	if(buffCtrlBlock->bufferReadCounter == buffSize)
+		buffCtrlBlock->bufferReadCounter = 0;
+	if(buffCtrlBlock->bufferReadCounter == buffCtrlBlock->bufferWriteCounter)
+		buffCtrlBlock->isBufferEmpty = true;
+
+	return BUFF_CTRL_ERR_SUCCESS;
+}
+
+/**
+ * @brief:
+ * @param:
+ * @return:
+ */
+BUFF_CTRL_ERR_CODE_t BuffCtrlWriteToBuff(buff_ctrl_block_t *buffCtrlBlock,
+		uint16_t buffSize, uint8_t *writeByte, uint8_t length)
+{
+	// If buffer is full, return error code
+	if(buffCtrlBlock->isBufferFull)
+		return BUFF_CTRL_ERR_BYTES_ABORTED;
+
+	// Clear isBufferEmpty flag because the buffer will be wrote, that means
+	// it can not be empty
+	buffCtrlBlock->isBufferEmpty = false;
+
+	// Write bytes to buffer until buffer is full or all bytes are transmitted
+	while(!(buffCtrlBlock->isBufferFull) && (length != 0))
 	{
-		LogPrint("ESB Sent okay\n");
-		LogFlush();
+		buffCtrlBlock->buffer[buffCtrlBlock->bufferWriteCounter] = *writeByte;
+		writeByte++;
+		buffCtrlBlock->bufferWriteCounter++;
+		length--;
+		if(buffCtrlBlock->bufferWriteCounter == buffSize)
+			buffCtrlBlock->bufferWriteCounter = 0;
+		if(buffCtrlBlock->bufferWriteCounter == buffCtrlBlock->bufferReadCounter)
+			buffCtrlBlock->isBufferFull = true;
 	}
-	else
-	{
-		LogPrint("Sending packet failed\n");
-		LogFlush();
-	}
-#endif
-#ifdef HAPTIC_DEVICE
-	EsbDrvInit(ESB_DEVICE_1);
-#endif
+
+	if((buffCtrlBlock->isBufferFull) && (length != 0))
+		return BUFF_CTRL_ERR_BYTES_ABORTED;
+
+	return BUFF_CTRL_ERR_SUCCESS;
 }
 
 /******************************************************************************
@@ -89,13 +109,6 @@ void SystemManagementInit(void)
  * @param:
  * @return:
  */
-static void ClockStart(void)
-{
-    // Start HFCLK and wait for it to start.
-    NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
-    NRF_CLOCK->TASKS_HFCLKSTART = 1;
-    while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0);
-}
 
 /******************************************************************************
  * END OF FILE

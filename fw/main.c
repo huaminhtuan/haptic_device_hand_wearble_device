@@ -57,7 +57,7 @@ int main(void)
 	SystemManagementInit();
 	while(1)
 	{
-
+		LogFlush();
 	}
 	return 0;
 }
