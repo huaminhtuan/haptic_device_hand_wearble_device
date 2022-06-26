@@ -18,8 +18,7 @@
  * INCLUDE
  *****************************************************************************/
 #include "nrf_error.h"
-#include "system_management.h"
-#include "log.h"
+#include "communication.h"
 #include "esb_drv.h"
 
 /******************************************************************************
@@ -33,7 +32,6 @@
 /******************************************************************************
  * LOCAL FUNCTION PROTOTYPE
  *****************************************************************************/
-static void ClockStart(void);
 
 /******************************************************************************
  * PUBLIC VARIABLE DEFINITION
@@ -47,38 +45,58 @@ static void ClockStart(void);
  * @param:
  * @return:
  */
-void SystemManagementInit(void)
+void CommunicationInit(void)
 {
-	LogInit();
-	LogPrint("\n\n\n");
-	LogPrint("HAPTIC DEVICE - HAND WEARABLE DEVICE PROJECT\n");
-#ifdef CENTRAL_CONTROLLER
-	LogPrint("Role: central controller\n");
-#endif
-#ifdef HAPTIC_DEVICE
-	LogPrint("Role: haptic device\n");
-#endif
-	LogPrint("Initializing...\n");
-	LogFlush();
-
-	ClockStart();
 #ifdef CENTRAL_CONTROLLER
 	EsbDrvInit(ESB_DEVICE_0);
-	uint8_t str[] = "test\n";
-	if(EsbDrvSend(str, 6, ESB_DEVICE_1) == NRF_SUCCESS)
-	{
-		LogPrint("ESB Sent okay\n");
-		LogFlush();
-	}
-	else
-	{
-		LogPrint("Sending packet failed\n");
-		LogFlush();
-	}
 #endif
 #ifdef HAPTIC_DEVICE
 	EsbDrvInit(ESB_DEVICE_1);
 #endif
+}
+
+/**
+ * @brief:
+ * @param:
+ * @return:
+ */
+void CommunicationSend(uint8_t *byte, uint8_t length, DESTINATION_DEVICE_t destinationDevice)
+{
+	ESB_DEVICE_t esbDevice = ESB_DEVICE_INVALID;
+	switch(destinationDevice)
+	{
+		case DES_DEV_THUMB:
+			esbDevice = ESB_DEVICE_1;
+			break;
+		case DES_DEV_INDEX_FINGER:
+			esbDevice = ESB_DEVICE_2;
+			break;
+		case DES_DEV_MIDDLE_FINGER:
+			esbDevice = ESB_DEVICE_3;
+			break;
+		case DES_DEV_RING_FINGER:
+			esbDevice = ESB_DEVICE_4;
+			break;
+		case DES_DEV_LITTLE_FINGER:
+			esbDevice = ESB_DEVICE_5;
+			break;
+	}
+
+	if(EsbDrvSend(byte, length, esbDevice) == NRF_SUCCESS)
+	{
+//		LogPrint("Sending packet success\n");
+//		LogFlush();
+	}
+	else
+	{
+//		LogPrint("Sending packet failed\n");
+//		LogFlush();
+	}
+}
+
+void CommunicationReceive(void)
+{
+
 }
 
 /******************************************************************************
@@ -89,13 +107,6 @@ void SystemManagementInit(void)
  * @param:
  * @return:
  */
-static void ClockStart(void)
-{
-    // Start HFCLK and wait for it to start.
-    NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
-    NRF_CLOCK->TASKS_HFCLKSTART = 1;
-    while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0);
-}
 
 /******************************************************************************
  * END OF FILE

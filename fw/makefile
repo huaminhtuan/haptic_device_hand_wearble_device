@@ -18,8 +18,9 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
   $(SDK_ROOT)/components/proprietary_rf/esb/nrf_esb.c \
-  $(PROJ_DIR)/application_layer/system_management/system_management.c \
+  $(PROJ_DIR)/application_layer/system/system.c \
   $(PROJ_DIR)/application_layer/log/log.c \
+  $(PROJ_DIR)/application_layer/communication/communication.c \
   $(PROJ_DIR)/driver_layer/uart_drv/uart_drv.c \
   $(PROJ_DIR)/driver_layer/esb_drv/esb_drv.c \
   $(PROJ_DIR)/driver_layer/buffer_control_drv/buffer_control_drv.c \
@@ -38,8 +39,9 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/drivers_nrf/nrf_soc_nosd \
   $(SDK_ROOT)/components/proprietary_rf/esb \
   $(SDK_ROOT)/components/libraries/delay \
-  $(PROJ_DIR)/application_layer/system_management \
+  $(PROJ_DIR)/application_layer/system \
   $(PROJ_DIR)/application_layer/log \
+  $(PROJ_DIR)/application_layer/communication \
   $(PROJ_DIR)/driver_layer/uart_drv \
   $(PROJ_DIR)/driver_layer/esb_drv \
   $(PROJ_DIR)/driver_layer/buffer_control_drv \
@@ -63,8 +65,8 @@ CFLAGS += -mthumb -mabi=aapcs
 CFLAGS += -Wall
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 CFLAGS += -DCONFIG_ESB_MAX_PAYLOAD_LENGTH=32 -DCONFIG_ARM -DCONFIG_MP_NUM_CPUS=1
-#CFLAGS += -DCENTRAL_CONTROLLER
-CFLAGS += -DHAPTIC_DEVICE
+CFLAGS += -DCENTRAL_CONTROLLER
+#CFLAGS += -DHAPTIC_DEVICE
 # keep every function in a separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin -fshort-enums

@@ -41,6 +41,7 @@ static ESB_DEVICE_t esbDeviceAddress = ESB_DEVICE_INVALID;
 
 static uint8_t rxBuffer[BUFFER_SIZE];
 static ESB_ControlBlock_t esbControlBlock = {.txCtrlBlock={rxBuffer, 0, 0, false, true}};
+static bool isDataAvailable = false;
 
 /******************************************************************************
  * LOCAL FUNCTION PROTOTYPE
@@ -124,6 +125,8 @@ void EsbDrvReceive(uint8_t *readByte, uint16_t *readLength)
 		BuffCtrlReadFromBuff(&esbControlBlock.txCtrlBlock, BUFFER_SIZE, &readByte[*readLength]);
 		(*readLength)++;
 	}
+
+	isDataAvailable = false;
 }
 
 /******************************************************************************
@@ -158,6 +161,7 @@ static void EsbEventHandler(nrf_esb_evt_t const * p_event)
 			{
 				BuffCtrlWriteToBuff(&esbControlBlock.txCtrlBlock, BUFFER_SIZE,
 						rxPayload.data, rxPayload.length);
+				isDataAvailable = true;
 			}
 #endif
 		}
