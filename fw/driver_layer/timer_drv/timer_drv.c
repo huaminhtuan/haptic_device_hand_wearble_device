@@ -17,11 +17,8 @@
 /******************************************************************************
  * INCLUDE
  *****************************************************************************/
-#include "system.h"
-#include "nrf_error.h"
-#include "log.h"
-#include "communication.h"
 #include "timer_drv.h"
+#include "nrfx_timer.h"
 
 /******************************************************************************
  * LOCAL DEFINITION
@@ -30,11 +27,12 @@
 /******************************************************************************
  * LOCAL VARIABLE DEFINITION
  *****************************************************************************/
+static nrfx_timer_t timerInst = NRFX_TIMER_INSTANCE(0);
 
 /******************************************************************************
  * LOCAL FUNCTION PROTOTYPE
  *****************************************************************************/
-static void ClockStart(void);
+static void TimerEventHandler(nrf_timer_event_t event_type, void* p_context);
 
 /******************************************************************************
  * PUBLIC VARIABLE DEFINITION
@@ -48,36 +46,18 @@ static void ClockStart(void);
  * @param:
  * @return:
  */
-void SystemAppInit(void)
+void TimerDrvInit(void)
 {
-	LogInit();
-	LogPrint("\n\n\n");
-	LogPrint("HAPTIC DEVICE - HAND WEARABLE DEVICE PROJECT\n");
-#ifdef CENTRAL_CONTROLLER
-	LogPrint("Role: central controller\n");
-#endif
-#ifdef HAPTIC_DEVICE
-	LogPrint("Role: haptic device\n");
-#endif
-	LogPrint("Initializing...\n");
-
-	ClockStart();
-	CommunicationInit();
-
-	TimerDrvInit();
-
-	LogPrint("Initialization done!\n");
-	LogFlush();
-}
-
-/**
- * @brief:
- * @param:
- * @return:
- */
-void SystemControl(void)
-{
-	LogFlush();
+	nrfx_timer_config_t config;
+	config.frequency = NRF_TIMER_FREQ_1MHz;
+	config.mode = NRF_TIMER_MODE_TIMER;
+	config.bit_width = TIMER_BITMODE_BITMODE_16Bit;
+	config.interrupt_priority = 7;
+	config.p_context = NULL;
+	nrfx_timer_init(&timerInst, &config, TimerEventHandler);
+	nrfx_timer_extended_compare(&timerInst, NRF_TIMER_CC_CHANNEL0,
+			nrfx_timer_ms_to_ticks(&timerInst, 1), NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, true);
+	nrfx_timer_enable(&timerInst);
 }
 
 /******************************************************************************
@@ -88,12 +68,17 @@ void SystemControl(void)
  * @param:
  * @return:
  */
-static void ClockStart(void)
+static void TimerEventHandler(nrf_timer_event_t event, void* context)
 {
-    // Start HFCLK and wait for it to start.
-    NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
-    NRF_CLOCK->TASKS_HFCLKSTART = 1;
-    while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0);
+	switch (event)
+	{
+		case NRF_TIMER_EVENT_COMPARE0:
+			break;
+
+		default:
+			//Do nothing.
+			break;
+	}
 }
 
 /******************************************************************************
