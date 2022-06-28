@@ -16,6 +16,7 @@ SRC_FILES += \
   $(PROJ_DIR)/gcc_startup_nrf52840.s \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_timer.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
   $(SDK_ROOT)/components/proprietary_rf/esb/nrf_esb.c \
   $(PROJ_DIR)/application_layer/system/system.c \
@@ -23,6 +24,7 @@ SRC_FILES += \
   $(PROJ_DIR)/application_layer/communication/communication.c \
   $(PROJ_DIR)/driver_layer/uart_drv/uart_drv.c \
   $(PROJ_DIR)/driver_layer/esb_drv/esb_drv.c \
+  $(PROJ_DIR)/driver_layer/timer_drv/timer_drv.c \
   $(PROJ_DIR)/driver_layer/buffer_control_drv/buffer_control_drv.c \
   
 # Include folders common to all targets
@@ -44,6 +46,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/application_layer/communication \
   $(PROJ_DIR)/driver_layer/uart_drv \
   $(PROJ_DIR)/driver_layer/esb_drv \
+  $(PROJ_DIR)/driver_layer/timer_drv \
   $(PROJ_DIR)/driver_layer/buffer_control_drv \
   
 # Libraries common to all targets
