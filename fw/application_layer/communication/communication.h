@@ -21,6 +21,7 @@
  * INCLUDE
  *****************************************************************************/
 #include <stdint.h>
+#include <stdbool.h>
 
 /******************************************************************************
  * PUBLIC DEFINITION
@@ -44,7 +45,7 @@ typedef enum
 void CommunicationInit(void);
 
 void CommunicationSend(uint8_t *byte, uint8_t length, DESTINATION_DEVICE_t destinationDevice);
-void CommunicationReceive(void);
+bool CommunicationReceive(uint8_t *byte, uint16_t *len);
 
 #endif
 /******************************************************************************

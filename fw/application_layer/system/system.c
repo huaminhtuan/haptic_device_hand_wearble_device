@@ -64,6 +64,10 @@ void SystemAppInit(void)
 	CommunicationInit();
 
 	LogPrint("Initialization done!\n");
+#ifdef CENTRAL_CONTROLLER
+	uint8_t str[] = "test\n";
+	CommunicationSend(str, 6, DES_DEV_THUMB);
+#endif
 	LogFlush();
 }
 
@@ -75,6 +79,13 @@ void SystemAppInit(void)
 void SystemControl(void)
 {
 	LogFlush();
+	uint8_t byte[255];
+	uint16_t len;
+	if(CommunicationReceive(byte, &len))
+	{
+		LogPrint((const char *)byte);
+	}
+
 }
 
 /******************************************************************************

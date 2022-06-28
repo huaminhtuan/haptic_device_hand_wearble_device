@@ -65,8 +65,8 @@ CFLAGS += -mthumb -mabi=aapcs
 CFLAGS += -Wall
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 CFLAGS += -DCONFIG_ESB_MAX_PAYLOAD_LENGTH=32 -DCONFIG_ARM -DCONFIG_MP_NUM_CPUS=1
-CFLAGS += -DCENTRAL_CONTROLLER
-#CFLAGS += -DHAPTIC_DEVICE
+#CFLAGS += -DCENTRAL_CONTROLLER
+CFLAGS += -DHAPTIC_DEVICE
 # keep every function in a separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin -fshort-enums

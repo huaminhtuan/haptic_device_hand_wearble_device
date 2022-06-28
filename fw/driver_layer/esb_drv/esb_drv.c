@@ -11,7 +11,9 @@
  * Author		:
  * History		:
  *
- * Notes		:
+ * Notes		: More information about the ESB module is available in the links below:
+ * https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/ug_esb.html
+ * https://devzone.nordicsemi.com/nordic/nordic-blog/b/blog/posts/intro-to-shockburstenhanced-shockburst
  *****************************************************************************/
 
 /******************************************************************************
@@ -26,7 +28,7 @@
 /******************************************************************************
  * LOCAL DEFINITION
  *****************************************************************************/
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 252
 typedef struct
 {
 	buff_ctrl_block_t txCtrlBlock;
@@ -56,9 +58,9 @@ static void EsbEventHandler(nrf_esb_evt_t const * p_event);
  * PUBLIC FUNCTION DEFINITION
  *****************************************************************************/
 /**
- * @brief:
- * @param:
- * @return:
+ * @brief: Initialize ESB module
+ * @param esbDevice: ESB device address
+ * @return: Initialization status
  */
 uint32_t EsbDrvInit(ESB_DEVICE_t esbDevice)
 {
@@ -94,9 +96,11 @@ uint32_t EsbDrvInit(ESB_DEVICE_t esbDevice)
 }
 
 /**
- * @brief:
- * @param:
- * @return:
+ * @brief: Send a data array
+ * @param byte:		 Pointer to data array
+ * @param length:	 Number of bytes to be sent
+ * @param esbDevice: Destination device
+ * @return: Transmission status
  */
 uint32_t EsbDrvSend(uint8_t *byte, uint8_t length, ESB_DEVICE_t esbDevice)
 {
@@ -115,7 +119,7 @@ uint32_t EsbDrvSend(uint8_t *byte, uint8_t length, ESB_DEVICE_t esbDevice)
  * @param:
  * @return:
  */
-void EsbDrvReceive(uint8_t *readByte, uint16_t *readLength)
+void EsbDrvReceiveAllBytes(uint8_t *readByte, uint16_t *readLength)
 {
 	// Reset read length
 	*readLength = 0;
@@ -127,6 +131,16 @@ void EsbDrvReceive(uint8_t *readByte, uint16_t *readLength)
 	}
 
 	isDataAvailable = false;
+}
+
+/**
+ * @brief: Check if there is any frame arrived in the rx buffer
+ * @param: none
+ * @return: True if data is available in the rx buffer, false if not
+ */
+bool EsbDrvIsDataAvai(void)
+{
+	return isDataAvailable;
 }
 
 /******************************************************************************
@@ -151,7 +165,7 @@ static void EsbEventHandler(nrf_esb_evt_t const * p_event)
 		break;
 	case NRF_ESB_EVENT_RX_RECEIVED:
 		// Get the most recent element from the RX FIFO.
-		LogPrint("received!");
+		LogPrint("received!\n");
 		if (nrf_esb_read_rx_payload(&rxPayload) == NRF_SUCCESS)
 		{
 #ifdef CENTRAL_CONTROLLER
@@ -162,6 +176,7 @@ static void EsbEventHandler(nrf_esb_evt_t const * p_event)
 				BuffCtrlWriteToBuff(&esbControlBlock.txCtrlBlock, BUFFER_SIZE,
 						rxPayload.data, rxPayload.length);
 				isDataAvailable = true;
+				nrf_esb_flush_rx();
 			}
 #endif
 		}

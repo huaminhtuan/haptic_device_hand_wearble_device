@@ -20,10 +20,12 @@
 #include "nrf_error.h"
 #include "communication.h"
 #include "esb_drv.h"
+#include "log.h"
 
 /******************************************************************************
  * LOCAL DEFINITION
  *****************************************************************************/
+#define MAX_DATA_LEN 200
 
 /******************************************************************************
  * LOCAL VARIABLE DEFINITION
@@ -84,19 +86,27 @@ void CommunicationSend(uint8_t *byte, uint8_t length, DESTINATION_DEVICE_t desti
 
 	if(EsbDrvSend(byte, length, esbDevice) == NRF_SUCCESS)
 	{
-//		LogPrint("Sending packet success\n");
-//		LogFlush();
+		LogPrint("Sending packet success\n");
+		LogFlush();
 	}
 	else
 	{
-//		LogPrint("Sending packet failed\n");
-//		LogFlush();
+		LogPrint("Sending packet failed\n");
+		LogFlush();
 	}
 }
 
-void CommunicationReceive(void)
+bool CommunicationReceive(uint8_t *byte, uint16_t *len)
 {
-
+	if(EsbDrvIsDataAvai())
+	{
+		EsbDrvReceiveAllBytes(byte, len);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 /******************************************************************************

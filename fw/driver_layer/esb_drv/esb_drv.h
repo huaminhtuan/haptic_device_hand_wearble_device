@@ -51,7 +51,9 @@ typedef enum
 uint32_t EsbDrvInit(ESB_DEVICE_t esbDevice);
 
 uint32_t EsbDrvSend(uint8_t *byte, uint8_t length, ESB_DEVICE_t esbDevice);
-void EsbDrvReceive(uint8_t *readByte, uint16_t *readLength);
+void EsbDrvReceiveAllBytes(uint8_t *readByte, uint16_t *readLength);
+
+bool EsbDrvIsDataAvai(void);
 
 #endif
 /******************************************************************************
