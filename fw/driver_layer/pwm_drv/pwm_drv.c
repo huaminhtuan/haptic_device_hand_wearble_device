@@ -17,12 +17,8 @@
 /******************************************************************************
  * INCLUDE
  *****************************************************************************/
-#include "system.h"
-#include "nrf_error.h"
-#include "log.h"
-#include "communication.h"
-#include "timer_drv.h"
 #include "pwm_drv.h"
+#include "nrfx_pwm.h"
 
 /******************************************************************************
  * LOCAL DEFINITION
@@ -31,11 +27,11 @@
 /******************************************************************************
  * LOCAL VARIABLE DEFINITION
  *****************************************************************************/
+static nrfx_pwm_t pwmInst = NRFX_PWM_INSTANCE(0);
 
 /******************************************************************************
  * LOCAL FUNCTION PROTOTYPE
  *****************************************************************************/
-static void ClockStart(void);
 
 /******************************************************************************
  * PUBLIC VARIABLE DEFINITION
@@ -49,63 +45,25 @@ static void ClockStart(void);
  * @param:
  * @return:
  */
-void SystemAppInit(void)
+void PwmDrvInit(void)
 {
-	LogInit();
-	LogPrint("\n\n\n");
-	LogPrint("HAPTIC DEVICE - HAND WEARABLE DEVICE PROJECT\n");
-#ifdef CENTRAL_CONTROLLER
-	LogPrint("Role: central controller\n");
-#endif
-#ifdef HAPTIC_DEVICE
-	LogPrint("Role: haptic device\n");
-#endif
-	LogPrint("Initializing...\n");
-
-	ClockStart();
-	CommunicationInit();
-
-	TimerDrvInit();
-	PwmDrvInit();
-
-	LogPrint("Initialization done!\n");
-#ifdef CENTRAL_CONTROLLER
-	uint8_t str[] = "test\n";
-	CommunicationSend(str, 6, DES_DEV_THUMB);
-#endif
-	LogFlush();
-}
-
-/**
- * @brief:
- * @param:
- * @return:
- */
-void SystemControl(void)
-{
-	static uint16_t msTickCounter = 0;
-
-	if(TimerIsMilisecFlagOn())
+	nrfx_pwm_config_t const config =
 	{
-		msTickCounter++;
-	}
-
-	// 10ms tasks
-	if((msTickCounter%10==0))
-	{
-	}
-	// 100ms tasks
-	if((msTickCounter%100==0)==true)
-	{
-		msTickCounter = 0;
-		uint8_t byte[255];
-		uint16_t len;
-		if(CommunicationReceive(byte, &len))
-		{
-			LogPrint((const char *)byte);
-		}
-		LogFlush();
-	}
+			.output_pins =
+			{
+					1, // channel 0
+					NRFX_PWM_PIN_NOT_USED,             // channel 1
+					NRFX_PWM_PIN_NOT_USED,             // channel 2
+					NRFX_PWM_PIN_NOT_USED,             // channel 3
+			},
+			.irq_priority = 7,
+			.base_clock   = NRF_PWM_CLK_1MHz,
+			.count_mode   = NRF_PWM_MODE_UP,
+			.top_value    = 100,
+			.load_mode    = NRF_PWM_LOAD_INDIVIDUAL,
+			.step_mode    = NRF_PWM_STEP_AUTO
+	};
+	nrfx_pwm_init(&pwmInst, &config, NULL);
 }
 
 /******************************************************************************
@@ -116,20 +74,6 @@ void SystemControl(void)
  * @param:
  * @return:
  */
-static void ClockStart(void)
-{
-    // Start HFCLK and wait for it to start.
-    NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
-    NRF_CLOCK->TASKS_HFCLKSTART = 1;
-    while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0);
-}
-
-void HardFault_Handler(void)
-{
-	LogPrint("Hard Fault\n");
-	LogFlush();
-	while(1);
-}
 
 /******************************************************************************
  * END OF FILE
