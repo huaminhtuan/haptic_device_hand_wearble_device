@@ -81,14 +81,29 @@ void SystemAppInit(void)
  */
 void SystemControl(void)
 {
-	LogFlush();
-	uint8_t byte[255];
-	uint16_t len;
-	if(CommunicationReceive(byte, &len))
+	static uint16_t msTickCounter = 0;
+
+	if(TimerIsMilisecFlagOn())
 	{
-		LogPrint((const char *)byte);
+		msTickCounter++;
 	}
 
+	// 10ms tasks
+	if((msTickCounter%10==0))
+	{
+	}
+	// 100ms tasks
+	if((msTickCounter%100==0)==true)
+	{
+		msTickCounter = 0;
+		uint8_t byte[255];
+		uint16_t len;
+		if(CommunicationReceive(byte, &len))
+		{
+			LogPrint((const char *)byte);
+		}
+		LogFlush();
+	}
 }
 
 /******************************************************************************
@@ -105,6 +120,13 @@ static void ClockStart(void)
     NRF_CLOCK->EVENTS_HFCLKSTARTED = 0;
     NRF_CLOCK->TASKS_HFCLKSTART = 1;
     while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0);
+}
+
+void HardFault_Handler(void)
+{
+	LogPrint("Hard Fault\n");
+	LogFlush();
+	while(1);
 }
 
 /******************************************************************************

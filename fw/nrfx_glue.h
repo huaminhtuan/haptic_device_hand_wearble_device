@@ -51,6 +51,8 @@
 extern "C" {
 #endif
 
+#include <nrf_assert.h>
+
 /**
  * @defgroup nrfx_glue nrfx_glue.h
  * @{
@@ -62,7 +64,7 @@ extern "C" {
 
 // Uncomment this line to use the standard MDK way of binding IRQ handlers
 // at linking time.
-//#include <soc/nrfx_irqs.h>
+#include <soc/nrfx_irqs.h>
 
 //------------------------------------------------------------------------------
 
@@ -82,20 +84,46 @@ extern "C" {
 
 //------------------------------------------------------------------------------
 
+#ifdef NRF51
+#ifdef SOFTDEVICE_PRESENT
+#define INTERRUPT_PRIORITY_IS_VALID(pri) (((pri) == 1) || ((pri) == 3))
+#else
+#define INTERRUPT_PRIORITY_IS_VALID(pri) ((pri) < 4)
+#endif //SOFTDEVICE_PRESENT
+#else
+#ifdef SOFTDEVICE_PRESENT
+#define INTERRUPT_PRIORITY_IS_VALID(pri) ((((pri) > 1) && ((pri) < 4)) || \
+                                          (((pri) > 4) && ((pri) < 8)))
+#else
+#define INTERRUPT_PRIORITY_IS_VALID(pri) ((pri) < 8)
+#endif //SOFTDEVICE_PRESENT
+#endif //NRF52
+
 /**
  * @brief Macro for setting the priority of a specific IRQ.
  *
  * @param irq_number IRQ number.
  * @param priority   Priority to be set.
  */
-#define NRFX_IRQ_PRIORITY_SET(irq_number, priority)
+#define NRFX_IRQ_PRIORITY_SET(irq_number, priority) \
+    _NRFX_IRQ_PRIORITY_SET(irq_number, priority)
+static inline void _NRFX_IRQ_PRIORITY_SET(IRQn_Type irq_number,
+                                          uint8_t   priority)
+{
+    ASSERT(INTERRUPT_PRIORITY_IS_VALID(priority));
+    NVIC_SetPriority(irq_number, priority);
+}
 
 /**
  * @brief Macro for enabling a specific IRQ.
  *
  * @param irq_number IRQ number.
  */
-#define NRFX_IRQ_ENABLE(irq_number)
+#define NRFX_IRQ_ENABLE(irq_number)  _NRFX_IRQ_ENABLE(irq_number)
+static inline void _NRFX_IRQ_ENABLE(IRQn_Type irq_number)
+{
+    NVIC_EnableIRQ(irq_number);
+}
 
 /**
  * @brief Macro for checking if a specific IRQ is enabled.
@@ -105,28 +133,44 @@ extern "C" {
  * @retval true  If the IRQ is enabled.
  * @retval false Otherwise.
  */
-#define NRFX_IRQ_IS_ENABLED(irq_number)
+#define NRFX_IRQ_IS_ENABLED(irq_number)  _NRFX_IRQ_IS_ENABLED(irq_number)
+static inline bool _NRFX_IRQ_IS_ENABLED(IRQn_Type irq_number)
+{
+    return 0 != (NVIC->ISER[irq_number / 32] & (1UL << (irq_number % 32)));
+}
 
 /**
  * @brief Macro for disabling a specific IRQ.
  *
  * @param irq_number IRQ number.
  */
-#define NRFX_IRQ_DISABLE(irq_number)
+#define NRFX_IRQ_DISABLE(irq_number)  _NRFX_IRQ_DISABLE(irq_number)
+static inline void _NRFX_IRQ_DISABLE(IRQn_Type irq_number)
+{
+    NVIC_DisableIRQ(irq_number);
+}
 
 /**
  * @brief Macro for setting a specific IRQ as pending.
  *
  * @param irq_number IRQ number.
  */
-#define NRFX_IRQ_PENDING_SET(irq_number)
+#define NRFX_IRQ_PENDING_SET(irq_number) _NRFX_IRQ_PENDING_SET(irq_number)
+static inline void _NRFX_IRQ_PENDING_SET(IRQn_Type irq_number)
+{
+    NVIC_SetPendingIRQ(irq_number);
+}
 
 /**
  * @brief Macro for clearing the pending status of a specific IRQ.
  *
  * @param irq_number IRQ number.
  */
-#define NRFX_IRQ_PENDING_CLEAR(irq_number)
+#define NRFX_IRQ_PENDING_CLEAR(irq_number) _NRFX_IRQ_PENDING_CLEAR(irq_number)
+static inline void _NRFX_IRQ_PENDING_CLEAR(IRQn_Type irq_number)
+{
+    NVIC_ClearPendingIRQ(irq_number);
+}
 
 /**
  * @brief Macro for checking the pending status of a specific IRQ.
@@ -134,7 +178,11 @@ extern "C" {
  * @retval true  If the IRQ is pending.
  * @retval false Otherwise.
  */
-#define NRFX_IRQ_IS_PENDING(irq_number)
+#define NRFX_IRQ_IS_PENDING(irq_number) _NRFX_IRQ_IS_PENDING(irq_number)
+static inline bool _NRFX_IRQ_IS_PENDING(IRQn_Type irq_number)
+{
+    return (NVIC_GetPendingIRQ(irq_number) == 1);
+}
 
 /** @brief Macro for entering into a critical section. */
 #define NRFX_CRITICAL_SECTION_ENTER()
@@ -247,16 +295,16 @@ extern "C" {
 #define NRFX_DPPI_GROUPS_USED    0
 
 /** @brief Bitmask that defines PPI channels that are reserved for use outside of the nrfx library. */
-#define NRFX_PPI_CHANNELS_USED  0
+#define NRFX_PPI_CHANNELS_USED  NRF_PPI_CHANNELS_USED
 
 /** @brief Bitmask that defines PPI groups that are reserved for use outside of the nrfx library. */
-#define NRFX_PPI_GROUPS_USED    0
+#define NRFX_PPI_GROUPS_USED    NRF_PPI_GROUPS_USED
 
 /** @brief Bitmask that defines SWI instances that are reserved for use outside of the nrfx library. */
-#define NRFX_SWI_USED           0
+#define NRFX_SWI_USED           NRF_SWI_USED
 
 /** @brief Bitmask that defines TIMER instances that are reserved for use outside of the nrfx library. */
-#define NRFX_TIMERS_USED        0
+#define NRFX_TIMERS_USED        NRF_TIMERS_USED
 
 /** @} */
 
